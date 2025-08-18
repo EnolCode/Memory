@@ -4,7 +4,7 @@ Stack tecnológico completo con Docker y DevContainer. **NO necesitas instalar n
 
 ## 🚀 Stack Tecnológico
 
-- **Backend**: NestJS con TypeScript (última versión)
+- **Backend**: NestJS con TypeScript
 - **Frontend**: Vue 3 + Vite + TypeScript
 - **Base de datos**: PostgreSQL 16
 - **Cache**: Redis 7
