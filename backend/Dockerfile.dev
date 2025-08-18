@@ -1,0 +1,21 @@
+FROM node:22-alpine
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+# Copy package files only if they exist
+COPY package.json* pnpm-lock.yaml* ./
+
+# Install dependencies if package.json exists, otherwise skip
+RUN if [ -f package.json ]; then pnpm install; fi
+
+# Volume for live code updates
+VOLUME ["/app"]
+
+# Expose port
+EXPOSE 3000
+
+# Start development server (will install dependencies if needed)
+CMD sh -c "if [ ! -d node_modules ]; then pnpm install; fi && pnpm run start:dev"

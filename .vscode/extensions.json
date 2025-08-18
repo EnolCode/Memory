@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker",
+    "mikestead.dotenv",
+    "Vue.volar",
+    "Vue.vscode-typescript-vue-plugin",
+    "christian-kohler.path-intellisense",
+    "rangav.vscode-thunder-client",
+    "ckolkman.vscode-postgres",
+    "Prisma.prisma",
+    "firsttris.vscode-jest-runner",
+    "usernamehw.errorlens",
+    "aaron-bond.better-comments",
+    "PKief.material-icon-theme"
+  ]
+}

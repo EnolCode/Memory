@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(npx:*)",
+      "Bash(pnpm create:*)",
+      "Bash(pnpm add:*)",
+      "Bash(docker version:*)",
+      "Bash(docker pull:*)",
+      "Bash(test:*)",
+      "Bash(cp:*)",
+      "Bash(docker:*)",
+      "Bash(nslookup:*)",
+      "Bash(set PGPASSWORD=password)",
+      "Bash(rm:*)",
+      "Bash(tasklist:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

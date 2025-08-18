@@ -1,0 +1,67 @@
+{
+  "name": "Memory Project",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/app",
+  "overrideCommand": true,
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "mikestead.dotenv",
+        "Vue.volar",
+        "Vue.vscode-typescript-vue-plugin",
+        "christian-kohler.path-intellisense",
+        "rangav.vscode-thunder-client",
+        "ckolkman.vscode-postgres",
+        "Prisma.prisma",
+        "firsttris.vscode-jest-runner",
+        "usernamehw.errorlens",
+        "aaron-bond.better-comments",
+        "PKief.material-icon-theme"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": true
+        },
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true
+      }
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers-contrib/features/pnpm:2": {}
+  },
+  "postCreateCommand": "cd /app && if [ ! -d node_modules ]; then pnpm install; fi",
+  "postStartCommand": "pnpm run start:dev",
+  "forwardPorts": [3000, 5173, 5432, 6379, 8080],
+  "portsAttributes": {
+    "3000": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Frontend Vue",
+      "onAutoForward": "openBrowser"
+    },
+    "5432": {
+      "label": "PostgreSQL"
+    },
+    "6379": {
+      "label": "Redis"
+    },
+    "8080": {
+      "label": "Adminer",
+      "onAutoForward": "notify"
+    }
+  },
+  "remoteUser": "node"
+}
