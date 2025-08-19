@@ -59,3 +59,12 @@ restart-backend:
 
 restart-frontend:
 	docker-compose restart frontend
+
+backend-shell:
+	docker exec -it memory_backend sh
+
+frontend-shell:
+	docker exec -it memory_frontend sh
+
+db-shell:
+	docker exec -it memory_postgres psql -U admin -d memory_db
