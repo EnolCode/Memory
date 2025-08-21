@@ -16,7 +16,15 @@
       "Bash(tasklist:*)",
       "Bash(git add:*)",
       "WebFetch(domain:docs.nestjs.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(timeout:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(del C:UsersenolProgramacionReposmemory.devcontainerdocker-compose.extend.yml)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:www.reddit.com)",
+      "Bash(java:*)",
+      "Bash(where java)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []

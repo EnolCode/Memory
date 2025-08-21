@@ -50,10 +50,6 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    jwtService = module.get<JwtService>(JwtService);
-    configService = module.get<ConfigService>(ConfigService);
-
     // Clear all mocks
     jest.clearAllMocks();
   });
@@ -61,7 +57,7 @@ describe('AuthService', () => {
   describe('register', () => {
     const registerDto: RegisterDto = {
       email: 'test@example.com',
-      password: 'Test1234@',
+      password: 'Test1234@', // NOSONAR: Test password for e2e testing
       username: 'testuser',
     };
 
@@ -70,7 +66,7 @@ describe('AuthService', () => {
         id: 'uuid-123',
         email: registerDto.email,
         username: registerDto.username,
-        password: 'hashedPassword',
+        password: 'hashedPassword', // NOSONAR: Test password for e2e testing
         hashedRefreshToken: null,
         validatePassword: jest.fn(),
         setRefreshToken: jest.fn(),
@@ -110,7 +106,7 @@ describe('AuthService', () => {
   describe('login', () => {
     const loginDto: LoginDto = {
       email: 'test@example.com',
-      password: 'Test1234@',
+      password: 'Test1234@', // NOSONAR: Test password for e2e testing
     };
 
     it('should successfully login with valid credentials', async () => {
@@ -118,7 +114,7 @@ describe('AuthService', () => {
         id: 'uuid-123',
         email: loginDto.email,
         username: 'testuser',
-        password: 'hashedPassword',
+        password: 'hashedPassword', // NOSONAR: Test password for e2e testing
         validatePassword: jest.fn().mockResolvedValue(true),
       } as any;
 
@@ -174,7 +170,9 @@ describe('AuthService', () => {
 
       expect(result).toHaveProperty('accessToken', 'new-access-token');
       expect(result).toHaveProperty('refreshToken', 'new-refresh-token');
-      expect(mockUser.validateRefreshToken).toHaveBeenCalledWith('refresh-token');
+      expect(mockUser.validateRefreshToken).toHaveBeenCalledWith(
+        'refresh-token',
+      );
     });
 
     it('should throw UnauthorizedException for invalid refresh token', async () => {
@@ -214,14 +212,17 @@ describe('AuthService', () => {
       const mockUser = {
         id: 'uuid-123',
         email: 'test@example.com',
-        password: 'hashedPassword',
+        password: 'hashedPassword', // NOSONAR: Test password for e2e testing
         hashedRefreshToken: 'token',
         validatePassword: jest.fn().mockResolvedValue(true),
       } as any;
 
       mockUserRepository.findOne.mockResolvedValue(mockUser);
 
-      const result = await service.validateUser('test@example.com', 'Test1234@');
+      const result = await service.validateUser(
+        'test@example.com',
+        'Test1234@', // NOSONAR: Test password for e2e testing
+      );
 
       expect(result).toBeTruthy();
       expect(result).not.toHaveProperty('password');
@@ -231,7 +232,10 @@ describe('AuthService', () => {
     it('should return null for invalid credentials', async () => {
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      const result = await service.validateUser('invalid@example.com', 'password');
+      const result = await service.validateUser(
+        'invalid@example.com',
+        'password', // NOSONAR: Test password for e2e testing
+      );
 
       expect(result).toBeNull();
     });

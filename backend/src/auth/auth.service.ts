@@ -2,7 +2,6 @@ import {
   Injectable,
   ConflictException,
   UnauthorizedException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,12 +17,14 @@ import { AuthResponseDto, TokenPayload } from './dto/auth-response.dto';
 export class AuthService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
-    private jwtService: JwtService,
-    private configService: ConfigService,
+    private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto & { refreshToken: string }> {
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<AuthResponseDto & { refreshToken: string }> {
     const { email, password, username } = registerDto;
 
     // 1. Verificar si el email ya existe
@@ -42,34 +43,31 @@ export class AuthService {
       username,
     });
 
-    try {
-      // 3. Guardar en la base de datos
-      await this.userRepository.save(user);
+    // 3. Guardar en la base de datos
+    await this.userRepository.save(user);
 
-      // 4. Generar tokens
-      const tokens = await this.generateTokens(user);
+    // 4. Generar tokens
+    const tokens = await this.generateTokens(user);
 
-      // 5. Guardar refresh token hasheado en BD
-      await this.updateRefreshToken(user.id, tokens.refreshToken);
+    // 5. Guardar refresh token hasheado en BD
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
 
-      // 6. Retornar respuesta con refresh token para cookie
-      return {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        user: {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-        },
-      };
-    } catch (error) {
-      // Por si hay algún error de BD no controlado
-      throw new InternalServerErrorException('Error al crear el usuario');
-    }
+    // 6. Retornar respuesta con refresh token para cookie
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      },
+    };
   }
 
   // ========== LOGIN CON VALIDATED USER (usado por el controller) ==========
-  async loginWithValidatedUser(user: User): Promise<AuthResponseDto & { refreshToken: string }> {
+  async loginWithValidatedUser(
+    user: User,
+  ): Promise<AuthResponseDto & { refreshToken: string }> {
     // Generar tokens
     const tokens = await this.generateTokens(user);
 
@@ -89,7 +87,9 @@ export class AuthService {
   }
 
   // ========== LOGIN (para uso directo si necesario) ==========
-  async login(loginDto: LoginDto): Promise<AuthResponseDto & { refreshToken: string }> {
+  async login(
+    loginDto: LoginDto,
+  ): Promise<AuthResponseDto & { refreshToken: string }> {
     const { email, password } = loginDto;
 
     // 1. Buscar usuario
@@ -113,13 +113,16 @@ export class AuthService {
   }
 
   // ========== REFRESH TOKEN ==========
-  async refreshTokens(userId: string, refreshToken: string): Promise<AuthResponseDto & { refreshToken: string }> {
+  async refreshTokens(
+    userId: string,
+    refreshToken: string,
+  ): Promise<AuthResponseDto & { refreshToken: string }> {
     // 1. Buscar usuario con su refresh token
     const user = await this.userRepository.findOne({
       where: { id: userId },
     });
 
-    if (!user || !user.hashedRefreshToken) {
+    if (!user?.hashedRefreshToken) {
       throw new UnauthorizedException('Token inválido');
     }
 
@@ -183,7 +186,7 @@ export class AuthService {
   // Actualizar refresh token hasheado en BD
   private async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    
+
     await this.userRepository.update(userId, {
       hashedRefreshToken,
     });

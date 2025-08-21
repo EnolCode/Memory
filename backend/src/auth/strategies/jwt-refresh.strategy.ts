@@ -6,8 +6,11 @@ import { Request } from 'express';
 import { TokenPayload } from '../dto/auth-response.dto';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
-  constructor(private configService: ConfigService) {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
+  constructor(private readonly configService: ConfigService) {
     super({
       // Extrae el refresh token de las cookies
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -17,7 +20,9 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
       ]),
       ignoreExpiration: false,
       // Usa un secret diferente para refresh tokens
-      secretOrKey: configService.get<string>('JWT_REFRESH_SECRET') || 'default-refresh-secret',
+      secretOrKey:
+        configService.get<string>('JWT_REFRESH_SECRET') ||
+        'default-refresh-secret',
       passReqToCallback: true,
     } as any);
   }
@@ -25,7 +30,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
   // Validamos y extraemos el refresh token del request
   async validate(req: Request, payload: TokenPayload) {
     const refreshToken = req?.cookies?.refreshToken;
-    
+
     // Retornamos el payload y el token para validarlo contra el hash en BD
     return {
       ...payload,

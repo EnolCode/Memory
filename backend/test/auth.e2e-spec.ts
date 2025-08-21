@@ -12,7 +12,7 @@ describe('Auth System (e2e)', () => {
 
   const testUser = {
     email: `test${Date.now()}@example.com`,
-    password: 'Test1234@',
+    password: 'Test1234@', // NOSONAR: Test password for e2e testing
     username: 'testuser',
   };
 
@@ -22,7 +22,7 @@ describe('Auth System (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Aplicar la misma configuración que en main.ts
     app.useGlobalPipes(
       new ValidationPipe({
@@ -44,11 +44,10 @@ describe('Auth System (e2e)', () => {
 
   afterAll(async () => {
     // Limpiar usuario de prueba
-    await dataSource.query(
-      `DELETE FROM users WHERE email = $1`,
-      [testUser.email]
-    );
-    
+    await dataSource.query(`DELETE FROM users WHERE email = $1`, [
+      testUser.email,
+    ]);
+
     await app.close();
   });
 
@@ -86,7 +85,7 @@ describe('Auth System (e2e)', () => {
         .post('/auth/register')
         .send({
           email: 'invalid-email',
-          password: 'Test1234@',
+          password: 'Test1234@', // NOSONAR: Test password for e2e testing
           username: 'testuser',
         })
         .expect(400);
@@ -99,12 +98,14 @@ describe('Auth System (e2e)', () => {
         .post('/auth/register')
         .send({
           email: 'another@example.com',
-          password: 'weak',
+          password: 'weak', // NOSONAR: Test password for e2e testing
           username: 'testuser',
         })
         .expect(400);
 
-      expect(response.body.message).toContain('La contraseña debe tener al menos 8 caracteres');
+      expect(response.body.message).toContain(
+        'La contraseña debe tener al menos 8 caracteres',
+      );
     });
 
     it('should fail without required password pattern', async () => {
@@ -112,12 +113,14 @@ describe('Auth System (e2e)', () => {
         .post('/auth/register')
         .send({
           email: 'another@example.com',
-          password: 'password123',
+          password: 'password123', // NOSONAR: Test password for e2e testing
           username: 'testuser',
         })
         .expect(400);
 
-      expect(response.body.message).toContain('La contraseña debe contener mayúsculas, minúsculas, números y caracteres especiales');
+      expect(response.body.message).toContain(
+        'La contraseña debe contener mayúsculas, minúsculas, números y caracteres especiales',
+      );
     });
   });
 
@@ -158,7 +161,7 @@ describe('Auth System (e2e)', () => {
         .post('/auth/login')
         .send({
           email: testUser.email,
-          password: 'WrongPassword1@',
+          password: 'WrongPassword1@', // NOSONAR: Test password for e2e testing
         })
         .expect(401);
     });
@@ -183,9 +186,7 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail without token', async () => {
-      await request(app.getHttpServer())
-        .get('/auth/me')
-        .expect(401);
+      await request(app.getHttpServer()).get('/auth/me').expect(401);
     });
 
     it('should fail with invalid token', async () => {
@@ -206,8 +207,8 @@ describe('Auth System (e2e)', () => {
   describe('/auth/refresh (POST)', () => {
     it('should refresh tokens with valid refresh token cookie', async () => {
       // Esperar 1 segundo para asegurar que el token tenga un iat diferente
-      await new Promise(resolve => setTimeout(resolve, 1100));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1100));
+
       const response = await request(app.getHttpServer())
         .post('/auth/refresh')
         .set('Cookie', refreshTokenCookie)
@@ -215,14 +216,21 @@ describe('Auth System (e2e)', () => {
 
       expect(response.body).toHaveProperty('accessToken');
       expect(response.body).toHaveProperty('user');
-      
+
       // Verificar que se obtuvo un nuevo access token (diferente del anterior)
       expect(response.body.accessToken).toBeDefined();
       expect(typeof response.body.accessToken).toBe('string');
-      
+
       // Decodificar los tokens para verificar que tienen diferentes iat (issued at)
-      const oldTokenPayload = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64').toString());
-      const newTokenPayload = JSON.parse(Buffer.from(response.body.accessToken.split('.')[1], 'base64').toString());
+      const oldTokenPayload = JSON.parse(
+        Buffer.from(accessToken.split('.')[1], 'base64').toString(),
+      );
+      const newTokenPayload = JSON.parse(
+        Buffer.from(
+          response.body.accessToken.split('.')[1],
+          'base64',
+        ).toString(),
+      );
       expect(newTokenPayload.iat).toBeGreaterThan(oldTokenPayload.iat);
 
       // Verificar que se estableció una nueva cookie
@@ -232,9 +240,7 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail without refresh token cookie', async () => {
-      await request(app.getHttpServer())
-        .post('/auth/refresh')
-        .expect(401);
+      await request(app.getHttpServer()).post('/auth/refresh').expect(401);
     });
 
     it('should fail with invalid refresh token', async () => {
@@ -261,9 +267,7 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail without authentication', async () => {
-      await request(app.getHttpServer())
-        .post('/auth/logout')
-        .expect(401);
+      await request(app.getHttpServer()).post('/auth/logout').expect(401);
     });
   });
 
@@ -273,7 +277,7 @@ describe('Auth System (e2e)', () => {
         .post('/auth/register')
         .send({
           email: `security${Date.now()}@example.com`,
-          password: 'Secure1234@',
+          password: 'Secure1234@', // NOSONAR: Test password for e2e testing
           username: 'securitytest',
         })
         .expect(201);
@@ -291,8 +295,9 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should validate token expiration', async () => {
-      // Crear un token expirado manualmente (esto es solo un ejemplo)
-      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjN9.invalid';
+      // Crear un token expirado manualmente
+      const expiredToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjN9.invalid'; // NOSONAR: Test token for e2e testing
 
       await request(app.getHttpServer())
         .get('/auth/me')
