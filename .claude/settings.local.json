@@ -24,7 +24,9 @@
       "WebFetch(domain:www.reddit.com)",
       "Bash(java:*)",
       "Bash(where java)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(npm run sonar:*)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []

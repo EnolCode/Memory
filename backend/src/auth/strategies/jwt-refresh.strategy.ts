@@ -21,7 +21,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
       ignoreExpiration: false,
       // Usa un secret diferente para refresh tokens
       secretOrKey:
-        configService.get<string>('JWT_REFRESH_SECRET') ||
+        configService.get<string>('JWT_REFRESH_SECRET') ??
         'default-refresh-secret',
       passReqToCallback: true,
     } as any);
