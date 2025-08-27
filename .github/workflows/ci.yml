@@ -160,9 +160,7 @@ jobs:
       #   run: pnpm test -- --watchAll=false --coverage || true
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v3.0.0
-        with:
-          projectBaseDir: .
+        uses: SonarSource/sonarcloud-github-action@v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
