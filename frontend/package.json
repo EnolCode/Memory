@@ -9,6 +9,9 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:cov": "vitest --coverage",
+    "lint": "eslint . --fix",
+    "type-check": "vue-tsc --noEmit",
+    "format": "prettier --write src/",
     "sonar": "sonar-scanner"
   },
   "dependencies": {

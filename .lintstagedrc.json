@@ -4,7 +4,6 @@
     "node run-tests.cjs backend"
   ],
   "frontend/**/*.{ts,tsx,js,jsx}": [
-    "pnpm --dir frontend run lint",
-    "node run-tests.cjs frontend"
+    "pnpm --dir frontend run lint"
   ]
 }

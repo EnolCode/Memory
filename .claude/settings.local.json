@@ -33,7 +33,9 @@
       "Bash(pnpm remove:*)",
       "Bash(time pnpm run lint)",
       "Bash(/dev/null)",
-      "Bash(pnpm exec:*)"
+      "Bash(pnpm exec:*)",
+      "Bash(del .eslintrc.cjs .eslintignore)",
+      "Bash(del:*)"
     ],
     "deny": [],
     "ask": []

@@ -27,8 +27,9 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('refreshToken', response.refresh_token);
       
       return response;
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Login failed';
+    } catch (err) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      error.value = axiosError.response?.data?.message || 'Login failed';
       throw err;
     } finally {
       loading.value = false;
@@ -50,8 +51,9 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('refreshToken', response.refresh_token);
       
       return response;
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Registration failed';
+    } catch (err) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      error.value = axiosError.response?.data?.message || 'Registration failed';
       throw err;
     } finally {
       loading.value = false;
