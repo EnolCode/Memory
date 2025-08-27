@@ -47,4 +47,4 @@ redis_data/
 # ESLint cache
 .eslintcache
 backend/.eslintcache
-frontend/.eslintcache
+frontend/.eslintcache.sonarlint/

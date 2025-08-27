@@ -55,7 +55,7 @@ sonar-scanner `
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✓ SonarCloud analysis completed successfully!" -ForegroundColor Green
-    Write-Host "View results at: https://sonarcloud.io/dashboard?id=memory-app" -ForegroundColor Cyan
+    Write-Host "View results at: https://sonarcloud.io/dashboard?id=EnolCode_Memory" -ForegroundColor Cyan
 } else {
     Write-Host "✗ SonarCloud analysis failed!" -ForegroundColor Red
     exit 1

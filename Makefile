@@ -193,7 +193,7 @@ pre-commit-run: ## Ejecuta pre-commit en todos los archivos
 	pre-commit run --all-files
 
 .PHONY: sonar
-sonar: ## Ejecuta análisis de SonarCloud
+sonar: ## Ejecuta análisis local con SonarCloud (requiere token configurado)
 ifdef OS
 	@powershell -ExecutionPolicy Bypass -File run-sonar.ps1
 else

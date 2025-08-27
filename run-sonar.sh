@@ -50,7 +50,7 @@ sonar-scanner \
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ SonarCloud analysis completed successfully!${NC}"
-    echo "View results at: https://sonarcloud.io/dashboard?id=memory-app"
+    echo "View results at: https://sonarcloud.io/dashboard?id=EnolCode_Memory"
 else
     echo -e "${RED}✗ SonarCloud analysis failed!${NC}"
     exit 1
