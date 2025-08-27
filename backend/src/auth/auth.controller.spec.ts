@@ -7,7 +7,6 @@ import { Response } from 'express';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: AuthService;
 
   const mockAuthService = {
     register: jest.fn(),
@@ -35,7 +34,6 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    authService = module.get<AuthService>(AuthService);
 
     jest.clearAllMocks();
   });
@@ -67,6 +65,7 @@ describe('AuthController', () => {
         user: mockResult.user,
       });
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockResponse.cookie).toHaveBeenCalledWith(
         'refreshToken',
         'refresh-token',
@@ -106,6 +105,7 @@ describe('AuthController', () => {
         user: mockLoginResult.user,
       });
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockResponse.cookie).toHaveBeenCalledWith(
         'refreshToken',
         'refresh-token',
@@ -118,9 +118,7 @@ describe('AuthController', () => {
 
       const req = { user: { id: 'invalid-id' } };
 
-      await expect(controller.login(req, mockResponse)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(controller.login(req, mockResponse)).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -152,11 +150,9 @@ describe('AuthController', () => {
         user: mockResult.user,
       });
 
-      expect(mockAuthService.refreshTokens).toHaveBeenCalledWith(
-        'uuid-123',
-        'old-refresh-token',
-      );
+      expect(mockAuthService.refreshTokens).toHaveBeenCalledWith('uuid-123', 'old-refresh-token');
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockResponse.cookie).toHaveBeenCalledWith(
         'refreshToken',
         'new-refresh-token',
@@ -172,13 +168,14 @@ describe('AuthController', () => {
       const result = await controller.logout(req, mockResponse);
 
       expect(mockAuthService.logout).toHaveBeenCalledWith('uuid-123');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('refreshToken');
       expect(result).toEqual({ message: 'Logout exitoso' });
     });
   });
 
   describe('getProfile', () => {
-    it('should return user profile', async () => {
+    it('should return user profile', () => {
       const req = {
         user: {
           id: 'uuid-123',
@@ -186,7 +183,7 @@ describe('AuthController', () => {
         },
       };
 
-      const result = await controller.getProfile(req);
+      const result = controller.getProfile(req);
 
       expect(result).toEqual(req.user);
     });

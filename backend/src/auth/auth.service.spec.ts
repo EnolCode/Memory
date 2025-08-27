@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -11,9 +10,7 @@ import { LoginDto } from './dto/login.dto';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let userRepository: Repository<User>;
-  let jwtService: JwtService;
-  let configService: ConfigService;
+  // Mock services are used instead of actual instances
 
   const mockUserRepository = {
     findOne: jest.fn(),
@@ -72,7 +69,7 @@ describe('AuthService', () => {
         setRefreshToken: jest.fn(),
         validateRefreshToken: jest.fn(),
         removeRefreshToken: jest.fn(),
-      } as any;
+      } as unknown as User;
 
       mockUserRepository.findOne.mockResolvedValue(null); // Usuario no existe
       mockUserRepository.create.mockReturnValue(mockUser);
@@ -86,9 +83,9 @@ describe('AuthService', () => {
       expect(result).toHaveProperty('accessToken', 'access-token');
       expect(result).toHaveProperty('refreshToken', 'refresh-token');
       expect(result.user).toEqual({
-        id: mockUser.id,
-        email: mockUser.email,
-        username: mockUser.username,
+        id: (mockUser as { id: string }).id,
+        email: (mockUser as { email: string }).email,
+        username: (mockUser as { username: string }).username,
       });
       expect(mockUserRepository.save).toHaveBeenCalledWith(mockUser);
     });
@@ -96,9 +93,7 @@ describe('AuthService', () => {
     it('should throw ConflictException if email already exists', async () => {
       mockUserRepository.findOne.mockResolvedValue({ id: 'existing-user' });
 
-      await expect(service.register(registerDto)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
       expect(mockUserRepository.save).not.toHaveBeenCalled();
     });
   });
@@ -116,7 +111,7 @@ describe('AuthService', () => {
         username: 'testuser',
         password: 'hashedPassword', // NOSONAR: Test password for e2e testing
         validatePassword: jest.fn().mockResolvedValue(true),
-      } as any;
+      } as unknown as User;
 
       mockUserRepository.findOne.mockResolvedValue(mockUser);
       mockJwtService.sign.mockReturnValueOnce('access-token');
@@ -127,27 +122,25 @@ describe('AuthService', () => {
 
       expect(result).toHaveProperty('accessToken', 'access-token');
       expect(result).toHaveProperty('refreshToken', 'refresh-token');
-      expect(mockUser.validatePassword).toHaveBeenCalledWith(loginDto.password);
+      expect(
+        (mockUser as unknown as { validatePassword: jest.Mock }).validatePassword,
+      ).toHaveBeenCalledWith(loginDto.password);
     });
 
     it('should throw UnauthorizedException for invalid email', async () => {
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.login(loginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
 
     it('should throw UnauthorizedException for invalid password', async () => {
       const mockUser = {
         validatePassword: jest.fn().mockResolvedValue(false),
-      } as any;
+      } as Partial<User>;
 
       mockUserRepository.findOne.mockResolvedValue(mockUser);
 
-      await expect(service.login(loginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -159,7 +152,7 @@ describe('AuthService', () => {
         username: 'testuser',
         hashedRefreshToken: 'hashedToken',
         validateRefreshToken: jest.fn().mockResolvedValue(true),
-      } as any;
+      } as unknown as User;
 
       mockUserRepository.findOne.mockResolvedValue(mockUser);
       mockJwtService.sign.mockReturnValueOnce('new-access-token');
@@ -170,30 +163,30 @@ describe('AuthService', () => {
 
       expect(result).toHaveProperty('accessToken', 'new-access-token');
       expect(result).toHaveProperty('refreshToken', 'new-refresh-token');
-      expect(mockUser.validateRefreshToken).toHaveBeenCalledWith(
-        'refresh-token',
-      );
+      expect(
+        (mockUser as unknown as { validateRefreshToken: jest.Mock }).validateRefreshToken,
+      ).toHaveBeenCalledWith('refresh-token');
     });
 
     it('should throw UnauthorizedException for invalid refresh token', async () => {
       const mockUser = {
         hashedRefreshToken: 'hashedToken',
         validateRefreshToken: jest.fn().mockResolvedValue(false),
-      } as any;
+      } as Partial<User>;
 
       mockUserRepository.findOne.mockResolvedValue(mockUser);
 
-      await expect(
-        service.refreshTokens('uuid-123', 'invalid-token'),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens('uuid-123', 'invalid-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException if user not found', async () => {
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.refreshTokens('invalid-id', 'refresh-token'),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens('invalid-id', 'refresh-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -215,7 +208,7 @@ describe('AuthService', () => {
         password: 'hashedPassword', // NOSONAR: Test password for e2e testing
         hashedRefreshToken: 'token',
         validatePassword: jest.fn().mockResolvedValue(true),
-      } as any;
+      } as unknown as User;
 
       mockUserRepository.findOne.mockResolvedValue(mockUser);
 

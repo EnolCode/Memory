@@ -18,7 +18,7 @@ describe('User Entity', () => {
 
       expect(user.password).not.toBe('plainPassword');
       expect(user.password).toContain('$2b$');
-      
+
       // Verificar que el hash es válido
       const isValid = await bcrypt.compare('plainPassword', user.password);
       expect(isValid).toBe(true);
@@ -65,7 +65,7 @@ describe('User Entity', () => {
     });
 
     it('should handle null password gracefully', async () => {
-      const result = await user.validatePassword(null as any);
+      const result = await user.validatePassword(null as unknown as string);
       expect(result).toBe(false);
     });
   });
@@ -73,7 +73,7 @@ describe('User Entity', () => {
   describe('setRefreshToken', () => {
     it('should hash and store refresh token', async () => {
       const refreshToken = 'refresh-token-123';
-      
+
       await user.setRefreshToken(refreshToken);
 
       expect(user.hashedRefreshToken).toBeDefined();
@@ -108,7 +108,7 @@ describe('User Entity', () => {
 
     it('should return false if no refresh token is set', async () => {
       user.hashedRefreshToken = '';
-      
+
       const result = await user.validateRefreshToken(validToken);
       expect(result).toBe(false);
     });
@@ -122,7 +122,7 @@ describe('User Entity', () => {
   describe('removeRefreshToken', () => {
     it('should clear the refresh token', () => {
       user.hashedRefreshToken = 'some-hashed-token';
-      
+
       user.removeRefreshToken();
 
       expect(user.hashedRefreshToken).toBe('');
@@ -130,7 +130,7 @@ describe('User Entity', () => {
 
     it('should work even if refresh token is already null', () => {
       user.hashedRefreshToken = '';
-      
+
       expect(() => user.removeRefreshToken()).not.toThrow();
       expect(user.hashedRefreshToken).toBe('');
     });

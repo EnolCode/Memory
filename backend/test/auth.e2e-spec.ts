@@ -1,11 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-const request = require('supertest');
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { DataSource } from 'typeorm';
+import type { Server } from 'http';
 
 describe('Auth System (e2e)', () => {
   let app: INestApplication;
+  let httpServer: Server;
   let dataSource: DataSource;
   let accessToken: string;
   let refreshTokenCookie: string;
@@ -33,10 +39,12 @@ describe('Auth System (e2e)', () => {
     );
 
     // Cookie parser
+
     const cookieParser = require('cookie-parser');
     app.use(cookieParser());
 
     await app.init();
+    httpServer = app.getHttpServer() as Server;
 
     // Obtener conexión a la base de datos para limpiar después
     dataSource = moduleFixture.get(DataSource);
@@ -44,19 +52,14 @@ describe('Auth System (e2e)', () => {
 
   afterAll(async () => {
     // Limpiar usuario de prueba
-    await dataSource.query(`DELETE FROM users WHERE email = $1`, [
-      testUser.email,
-    ]);
+    await dataSource.query(`DELETE FROM users WHERE email = $1`, [testUser.email]);
 
     await app.close();
   });
 
   describe('/auth/register (POST)', () => {
     it('should register a new user successfully', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(testUser)
-        .expect(201);
+      const response = await request(httpServer).post('/auth/register').send(testUser).expect(201);
 
       expect(response.body).toHaveProperty('accessToken');
       expect(response.body).toHaveProperty('user');
@@ -72,16 +75,13 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail with duplicate email', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(testUser)
-        .expect(409);
+      const response = await request(httpServer).post('/auth/register').send(testUser).expect(409);
 
       expect(response.body.message).toContain('El email ya está registrado');
     });
 
     it('should fail with invalid email format', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(httpServer)
         .post('/auth/register')
         .send({
           email: 'invalid-email',
@@ -94,7 +94,7 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail with weak password', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(httpServer)
         .post('/auth/register')
         .send({
           email: 'another@example.com',
@@ -103,13 +103,11 @@ describe('Auth System (e2e)', () => {
         })
         .expect(400);
 
-      expect(response.body.message).toContain(
-        'La contraseña debe tener al menos 8 caracteres',
-      );
+      expect(response.body.message).toContain('La contraseña debe tener al menos 8 caracteres');
     });
 
     it('should fail without required password pattern', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(httpServer)
         .post('/auth/register')
         .send({
           email: 'another@example.com',
@@ -126,7 +124,7 @@ describe('Auth System (e2e)', () => {
 
   describe('/auth/login (POST)', () => {
     it('should login successfully with valid credentials', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(httpServer)
         .post('/auth/login')
         .send({
           email: testUser.email,
@@ -147,7 +145,7 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail with invalid email', async () => {
-      await request(app.getHttpServer())
+      await request(httpServer)
         .post('/auth/login')
         .send({
           email: 'nonexistent@example.com',
@@ -157,7 +155,7 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail with invalid password', async () => {
-      await request(app.getHttpServer())
+      await request(httpServer)
         .post('/auth/login')
         .send({
           email: testUser.email,
@@ -167,16 +165,13 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail with missing credentials', async () => {
-      await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({})
-        .expect(401); // LocalStrategy rechaza las credenciales vacías con 401
+      await request(httpServer).post('/auth/login').send({}).expect(401); // LocalStrategy rechaza las credenciales vacías con 401
     });
   });
 
   describe('/auth/me (GET)', () => {
     it('should return user profile with valid token', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(httpServer)
         .get('/auth/me')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
@@ -186,21 +181,18 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail without token', async () => {
-      await request(app.getHttpServer()).get('/auth/me').expect(401);
+      await request(httpServer).get('/auth/me').expect(401);
     });
 
     it('should fail with invalid token', async () => {
-      await request(app.getHttpServer())
+      await request(httpServer)
         .get('/auth/me')
         .set('Authorization', 'Bearer invalid-token')
         .expect(401);
     });
 
     it('should fail with malformed authorization header', async () => {
-      await request(app.getHttpServer())
-        .get('/auth/me')
-        .set('Authorization', 'InvalidFormat')
-        .expect(401);
+      await request(httpServer).get('/auth/me').set('Authorization', 'InvalidFormat').expect(401);
     });
   });
 
@@ -209,7 +201,7 @@ describe('Auth System (e2e)', () => {
       // Esperar 1 segundo para asegurar que el token tenga un iat diferente
       await new Promise((resolve) => setTimeout(resolve, 1100));
 
-      const response = await request(app.getHttpServer())
+      const response = await request(httpServer)
         .post('/auth/refresh')
         .set('Cookie', refreshTokenCookie)
         .expect(200);
@@ -226,12 +218,9 @@ describe('Auth System (e2e)', () => {
         Buffer.from(accessToken.split('.')[1], 'base64').toString(),
       );
       const newTokenPayload = JSON.parse(
-        Buffer.from(
-          response.body.accessToken.split('.')[1],
-          'base64',
-        ).toString(),
+        Buffer.from((response.body.accessToken as string).split('.')[1], 'base64').toString(),
       );
-      expect(newTokenPayload.iat).toBeGreaterThan(oldTokenPayload.iat);
+      expect(newTokenPayload.iat as number).toBeGreaterThan(oldTokenPayload.iat as number);
 
       // Verificar que se estableció una nueva cookie
       const cookies = response.headers['set-cookie'];
@@ -240,11 +229,11 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail without refresh token cookie', async () => {
-      await request(app.getHttpServer()).post('/auth/refresh').expect(401);
+      await request(httpServer).post('/auth/refresh').expect(401);
     });
 
     it('should fail with invalid refresh token', async () => {
-      await request(app.getHttpServer())
+      await request(httpServer)
         .post('/auth/refresh')
         .set('Cookie', 'refreshToken=invalid-token')
         .expect(401);
@@ -253,7 +242,7 @@ describe('Auth System (e2e)', () => {
 
   describe('/auth/logout (POST)', () => {
     it('should logout successfully', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(httpServer)
         .post('/auth/logout')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
@@ -267,13 +256,13 @@ describe('Auth System (e2e)', () => {
     });
 
     it('should fail without authentication', async () => {
-      await request(app.getHttpServer()).post('/auth/logout').expect(401);
+      await request(httpServer).post('/auth/logout').expect(401);
     });
   });
 
   describe('Security Tests', () => {
     it('should not expose password hash in any response', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(httpServer)
         .post('/auth/register')
         .send({
           email: `security${Date.now()}@example.com`,
@@ -288,7 +277,7 @@ describe('Auth System (e2e)', () => {
       expect(responseStr).not.toContain('$2b$'); // bcrypt hash prefix
     });
 
-    it('should rate limit registration attempts (if implemented)', async () => {
+    it('should rate limit registration attempts (if implemented)', () => {
       // Este test es para cuando implementes rate limiting
       // Por ahora solo documentamos que debería existir
       expect(true).toBe(true);
@@ -299,7 +288,7 @@ describe('Auth System (e2e)', () => {
       const expiredToken =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjN9.invalid'; // NOSONAR: Test token for e2e testing
 
-      await request(app.getHttpServer())
+      await request(httpServer)
         .get('/auth/me')
         .set('Authorization', `Bearer ${expiredToken}`)
         .expect(401);

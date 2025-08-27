@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  ConflictException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -22,9 +18,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(
-    registerDto: RegisterDto,
-  ): Promise<AuthResponseDto & { refreshToken: string }> {
+  async register(registerDto: RegisterDto): Promise<AuthResponseDto & { refreshToken: string }> {
     const { email, password, username } = registerDto;
 
     // 1. Verificar si el email ya existe
@@ -47,7 +41,7 @@ export class AuthService {
     await this.userRepository.save(user);
 
     // 4. Generar tokens
-    const tokens = await this.generateTokens(user);
+    const tokens = this.generateTokens(user);
 
     // 5. Guardar refresh token hasheado en BD
     await this.updateRefreshToken(user.id, tokens.refreshToken);
@@ -65,11 +59,9 @@ export class AuthService {
   }
 
   // ========== LOGIN CON VALIDATED USER (usado por el controller) ==========
-  async loginWithValidatedUser(
-    user: User,
-  ): Promise<AuthResponseDto & { refreshToken: string }> {
+  async loginWithValidatedUser(user: User): Promise<AuthResponseDto & { refreshToken: string }> {
     // Generar tokens
-    const tokens = await this.generateTokens(user);
+    const tokens = this.generateTokens(user);
 
     // Guardar refresh token hasheado
     await this.updateRefreshToken(user.id, tokens.refreshToken);
@@ -87,9 +79,7 @@ export class AuthService {
   }
 
   // ========== LOGIN (para uso directo si necesario) ==========
-  async login(
-    loginDto: LoginDto,
-  ): Promise<AuthResponseDto & { refreshToken: string }> {
+  async login(loginDto: LoginDto): Promise<AuthResponseDto & { refreshToken: string }> {
     const { email, password } = loginDto;
 
     // 1. Buscar usuario
@@ -134,7 +124,7 @@ export class AuthService {
     }
 
     // 3. Generar nuevos tokens (rotación de tokens)
-    const tokens = await this.generateTokens(user);
+    const tokens = this.generateTokens(user);
 
     // 4. Actualizar refresh token en BD
     await this.updateRefreshToken(user.id, tokens.refreshToken);
@@ -162,7 +152,7 @@ export class AuthService {
   // ========== MÉTODOS AUXILIARES ==========
 
   // Generar access y refresh tokens
-  private async generateTokens(user: User) {
+  private generateTokens(user: User) {
     const payload: TokenPayload = {
       sub: user.id,
       email: user.email,
@@ -195,7 +185,10 @@ export class AuthService {
   // ========== MÉTODOS PARA LAS ESTRATEGIAS ==========
 
   // Usado por LocalStrategy para validar login
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<Pick<User, 'id' | 'email' | 'username' | 'createdAt' | 'updatedAt'> | null> {
     const user = await this.userRepository.findOne({
       where: { email },
     });
@@ -204,14 +197,15 @@ export class AuthService {
       return null;
     }
 
-    const isPasswordValid = await user.validatePassword(password);
+    const isPasswordValid = await user.validatePassword(pass);
 
     if (!isPasswordValid) {
       return null;
     }
 
     // Retornar usuario sin password
-    const { password: _, hashedRefreshToken: __, ...result } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, hashedRefreshToken, ...result } = user;
     return result;
   }
 

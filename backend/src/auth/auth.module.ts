@@ -16,7 +16,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
           expiresIn: '15m',
@@ -26,12 +26,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    LocalStrategy,
-    JwtStrategy,
-    JwtRefreshStrategy,
-  ],
+  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

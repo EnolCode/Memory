@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Config files
+.eslintrc.js
+*.config.js
+*.config.ts
+
+# Generated files
+*.generated.ts
+*.dto.ts
+
+# Documentation
+docs/
+*.md
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Cache
+.eslintcache
+.cache/
+
+# Migrations (usually auto-generated)
+src/migrations/
+
+# Test fixtures
+test/fixtures/
+__mocks__/

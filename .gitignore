@@ -43,3 +43,8 @@ Thumbs.db
 # Docker volumes
 postgres_data/
 redis_data/
+
+# ESLint cache
+.eslintcache
+backend/.eslintcache
+frontend/.eslintcache

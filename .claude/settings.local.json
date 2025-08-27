@@ -26,7 +26,13 @@
       "Bash(where java)",
       "Bash(powershell:*)",
       "Bash(npm run sonar:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(npm run lint:*)",
+      "Bash(pnpm run lint:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(time pnpm run lint)",
+      "Bash(/dev/null)"
     ],
     "deny": [],
     "ask": []
