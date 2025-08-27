@@ -32,7 +32,8 @@
       "Bash(pnpm exec tsc:*)",
       "Bash(pnpm remove:*)",
       "Bash(time pnpm run lint)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(pnpm exec:*)"
     ],
     "deny": [],
     "ask": []
