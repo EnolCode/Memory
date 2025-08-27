@@ -84,28 +84,6 @@ services:
     depends_on:
       - backend
 
-  # SonarQube para análisis de código (opcional - usar con --profile dev)
-  sonarqube:
-    image: sonarqube:community
-    container_name: memory_sonarqube
-    restart: unless-stopped
-    profiles: ["dev", "sonar"]
-    environment:
-      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: 'true'
-    ports:
-      - "9000:9000"
-    volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_extensions:/opt/sonarqube/extensions
-      - sonarqube_logs:/opt/sonarqube/logs
-    networks:
-      - memory_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/api/system/status"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
 networks:
   memory_network:
@@ -116,6 +94,3 @@ volumes:
   redis_data:
   backend_node_modules:
   frontend_node_modules:
-  sonarqube_data:
-  sonarqube_extensions:
-  sonarqube_logs:
