@@ -5,7 +5,7 @@ import { LoginUseCase } from '../../application/use-cases/login/login.use-case';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private loginUseCase: LoginUseCase) {
+  constructor(private readonly loginUseCase: LoginUseCase) {
     super({
       usernameField: 'email',
       passwordField: 'password',

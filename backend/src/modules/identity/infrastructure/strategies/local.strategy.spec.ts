@@ -24,7 +24,7 @@ describe('LocalStrategy', () => {
     }).compile();
 
     strategy = module.get<LocalStrategy>(LocalStrategy);
-    loginUseCase = module.get<LoginUseCase>(LoginUseCase);
+    module.get<LoginUseCase>(LoginUseCase);
     jest.clearAllMocks();
   });
 

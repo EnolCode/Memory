@@ -76,7 +76,7 @@ describe('UserRepositoryImpl', () => {
         email: 'test@example.com',
         username: 'testuser',
         password: 'hashedPassword',
-        hashedRefreshToken: null,
+        hashedRefreshToken: '',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -110,7 +110,7 @@ describe('UserRepositoryImpl', () => {
         email: 'test@example.com',
         username: 'testuser',
         password: 'hashedPassword',
-        hashedRefreshToken: null,
+        hashedRefreshToken: '',
         createdAt: new Date(),
         updatedAt: new Date(),
       };

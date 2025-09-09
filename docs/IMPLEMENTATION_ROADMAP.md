@@ -11,23 +11,31 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
 - **Dependencias Backend**: TypeORM, JWT, Passport, Bcrypt, Swagger instaladas
 - **Dependencias Frontend**: Vue Router, Pinia, Axios, PrimeVue, Chart.js instaladas
 - **Documentación**: Database design y roadmap creados
+- **Arquitectura Backend**: Migración a Arquitectura Hexagonal con DDD completada
+- **Módulo Identity**: Sistema de autenticación completo con JWT y refresh tokens
+- **Testing**: Tests unitarios y e2e para el módulo de autenticación
+- **CI/CD**: SonarCloud configurado para análisis de código
 
 ### 🚧 En Progreso
 - **Fase 2**: Módulo de Libros - CRUD Básico (0% completado)
 
 ### 📝 Próximos Pasos Inmediatos
-1. Generar módulo Books con NestJS CLI
-2. Crear entidades BookCatalog y UserBook
-3. Implementar DTOs y servicio de libros
+1. Generar módulo Books siguiendo arquitectura hexagonal
+2. Crear entidades BookCatalog y UserBook en capa domain
+3. Implementar repositorios y casos de uso
 4. Crear endpoints CRUD para gestión de libros
 
 ### 🔧 Stack Tecnológico Decidido
+- **Arquitectura Backend**: Hexagonal (Ports & Adapters) con DDD
 - **ORM**: TypeORM
 - **UI Framework**: PrimeVue
 - **State Management**: Pinia
 - **HTTP Client**: Axios
 - **Charts**: Chart.js con vue-chartjs
 - **Date handling**: date-fns
+- **Testing**: Jest, Supertest
+- **Code Quality**: ESLint, Prettier, SonarCloud
+- **CI/CD**: GitHub Actions
 
 ---
 
@@ -66,19 +74,30 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
 ## 🎯 FASE 1: Sistema de Autenticación (3-4 días) ✅ BACKEND COMPLETADO
 *Objetivo: Sistema completo de auth funcionando con JWT*
 
-### Backend - Auth Module ✅
-- [x] ~~Generar módulo de autenticación~~ **COMPLETADO**
-- [x] ~~Crear entidad User con TypeORM~~ **COMPLETADO - user.entity.ts**
+### Backend - Identity Module ✅ (Arquitectura Hexagonal)
+- [x] ~~Generar módulo de autenticación~~ **COMPLETADO - modules/identity**
+- [x] ~~Arquitectura Hexagonal implementada~~ **COMPLETADO**
+  - [x] Capa Domain: Entidades, Repositorios (interfaces), Value Objects
+  - [x] Capa Application: Casos de uso, DTOs
+  - [x] Capa Infrastructure: Controladores, Persistencia, Estrategias
+- [x] ~~Crear entidad User con TypeORM~~ **COMPLETADO**
+  - [x] Entidad de dominio (user.entity.ts)
+  - [x] Schema de persistencia (user.schema.ts)
+  - [x] Mapeo entre capas
 - [x] ~~Crear DTOs~~ **COMPLETADO**
   - [x] RegisterDto
   - [x] LoginDto
   - [x] AuthResponseDto
-  - [x] RefreshTokenDto
   - [ ] UpdateUserDto (mover a módulo Users futuro)
-- [x] ~~Implementar servicio de usuarios~~ **COMPLETADO**
-  - [x] Crear usuario con hash de password (bcrypt)
-  - [x] Buscar usuario por email/username
-  - [x] Validar credenciales
+- [x] ~~Implementar casos de uso~~ **COMPLETADO**
+  - [x] RegisterUseCase
+  - [x] LoginUseCase
+  - [x] RefreshTokenUseCase
+  - [x] LogoutUseCase
+- [x] ~~Implementar repositorio~~ **COMPLETADO**
+  - [x] IUserRepository (interface)
+  - [x] UserRepositoryImpl (implementación con TypeORM)
+  - [x] Inyección de dependencias con tokens
 - [x] ~~Implementar JWT Strategy~~ **COMPLETADO - jwt.strategy.ts**
 - [x] ~~Implementar Local Strategy~~ **COMPLETADO - local.strategy.ts**
 - [x] ~~Implementar JWT Refresh Strategy~~ **COMPLETADO - jwt-refresh.strategy.ts**
@@ -90,7 +109,13 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
   - [x] POST /auth/logout
   - [x] GET /auth/me (perfil actual)
 - [x] ~~Implementar refresh tokens~~ **COMPLETADO**
-- [x] ~~Tests unitarios del servicio auth~~ **COMPLETADO**
+- [x] ~~Tests unitarios completos~~ **COMPLETADO**
+  - [x] Tests de entidad de dominio
+  - [x] Tests de casos de uso
+  - [x] Tests de repositorio
+  - [x] Tests de controlador
+  - [x] Tests de estrategias
+  - [x] Tests e2e
 
 ### Frontend - Auth System
 - [ ] Crear vistas de autenticación
@@ -110,19 +135,28 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
 ---
 
 ## 🎯 FASE 2: Módulo de Libros - CRUD Básico (3-4 días)
-*Objetivo: Poder crear, listar, ver y editar libros*
+*Objetivo: Poder crear, listar, ver y editar libros siguiendo arquitectura hexagonal*
 
-### Backend - Books Module
-- [ ] Crear entidades con TypeORM
-  - [ ] BookCatalog entity
-  - [ ] UserBook entity
-  - [ ] Crear migraciones
-- [ ] Generar módulo de libros
-  ```bash
-  nest g module books
-  nest g controller books
-  nest g service books
+### Backend - Books Module (Arquitectura Hexagonal)
+- [ ] Crear estructura de carpetas
   ```
+  modules/books/
+  ├── domain/
+  │   ├── entities/
+  │   ├── repositories/
+  │   └── value-objects/
+  ├── application/
+  │   ├── dto/
+  │   └── use-cases/
+  └── infrastructure/
+      ├── controllers/
+      └── persistence/
+  ```
+- [ ] Crear entidades de dominio
+  - [ ] BookCatalog entity (dominio)
+  - [ ] UserBook entity (dominio)
+  - [ ] Crear schemas de persistencia
+  - [ ] Crear migraciones
 - [ ] Crear DTOs
   - [ ] CreateBookDto
   - [ ] UpdateBookDto
@@ -441,13 +475,15 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
 
 ## 💡 Consejos de Implementación
 
-1. **Empieza siempre por el backend**: Es más fácil construir el frontend cuando la API está lista
-2. **Usa Postman/Insomnia**: Prueba tus endpoints antes de hacer el frontend
-3. **Commits frecuentes**: Un commit por feature pequeña
-4. **No te saltes fases**: Cada fase depende de la anterior
-5. **Prueba mientras desarrollas**: No dejes los tests para el final
-6. **Documentación inline**: Comenta el código complejo mientras lo escribes
-7. **Refactoriza pronto**: Si algo se siente mal, probablemente lo es
+1. **Sigue la arquitectura hexagonal**: Mantén las capas separadas y las dependencias correctas
+2. **Empieza por el dominio**: Define primero las entidades y reglas de negocio
+3. **Usa Postman/Insomnia**: Prueba tus endpoints antes de hacer el frontend
+4. **Commits frecuentes**: Un commit por feature pequeña
+5. **No te saltes fases**: Cada fase depende de la anterior
+6. **Prueba mientras desarrollas**: Escribe tests para cada caso de uso
+7. **Documentación inline**: Comenta el código complejo mientras lo escribes
+8. **Refactoriza pronto**: Si algo se siente mal, probablemente lo es
+9. **Usa el agente de revisión**: El agente clean-architecture-reviewer puede validar tu código
 
 ## 🚦 Checkpoints de Validación
 
@@ -490,4 +526,12 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
 
 ---
 
-**Siguiente paso inmediato**: Completar Fase 0 (Setup) y comenzar con Fase 1 (Auth Backend)
+**Siguiente paso inmediato**: Comenzar Fase 2 (Books Module) siguiendo la arquitectura hexagonal establecida
+
+## 📝 Notas de la Última Actualización (09/09/2025)
+- ✅ Migración completa del módulo auth a arquitectura hexagonal con DDD
+- ✅ Módulo renombrado de `auth` a `identity` para mejor semántica
+- ✅ Tests unitarios y e2e funcionando correctamente
+- ✅ ESLint configurado y warnings corregidos
+- ✅ SonarCloud integrado para análisis de código
+- 🎯 Próximo: Implementar módulo Books con la misma arquitectura

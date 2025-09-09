@@ -33,7 +33,7 @@ describe('JwtStrategy', () => {
     }).compile();
 
     strategy = module.get<JwtStrategy>(JwtStrategy);
-    loginUseCase = module.get<LoginUseCase>(LoginUseCase);
+    module.get<LoginUseCase>(LoginUseCase);
     jest.clearAllMocks();
   });
 
