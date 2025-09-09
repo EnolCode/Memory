@@ -9,7 +9,7 @@ import { AppModule } from '../src/app.module';
 import { DataSource } from 'typeorm';
 import type { Server } from 'http';
 
-describe('Auth System (e2e)', () => {
+describe('Identity Module - Auth System (e2e)', () => {
   let app: INestApplication;
   let httpServer: Server;
   let dataSource: DataSource;

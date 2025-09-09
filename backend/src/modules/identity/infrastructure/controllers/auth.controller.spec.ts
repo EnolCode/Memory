@@ -1,20 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterUseCase } from '../../application/use-cases/register/register.use-case';
+import { LoginUseCase } from '../../application/use-cases/login/login.use-case';
+import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token/refresh-token.use-case';
+import { LogoutUseCase } from '../../application/use-cases/logout/logout.use-case';
+import { RegisterDto } from '../../application/dto/register.dto';
 import { Response } from 'express';
 
 describe('AuthController', () => {
   let controller: AuthController;
 
-  const mockAuthService = {
-    register: jest.fn(),
-    login: jest.fn(),
+  const mockRegisterUseCase = {
+    execute: jest.fn(),
+  };
+
+  const mockLoginUseCase = {
+    execute: jest.fn(),
     loginWithValidatedUser: jest.fn(),
-    refreshTokens: jest.fn(),
-    logout: jest.fn(),
     getUserById: jest.fn(),
+  };
+
+  const mockRefreshTokenUseCase = {
+    execute: jest.fn(),
+  };
+
+  const mockLogoutUseCase = {
+    execute: jest.fn(),
   };
 
   const mockResponse = {
@@ -27,8 +39,20 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         {
-          provide: AuthService,
-          useValue: mockAuthService,
+          provide: RegisterUseCase,
+          useValue: mockRegisterUseCase,
+        },
+        {
+          provide: LoginUseCase,
+          useValue: mockLoginUseCase,
+        },
+        {
+          provide: RefreshTokenUseCase,
+          useValue: mockRefreshTokenUseCase,
+        },
+        {
+          provide: LogoutUseCase,
+          useValue: mockLogoutUseCase,
         },
       ],
     }).compile();
@@ -56,7 +80,7 @@ describe('AuthController', () => {
         },
       };
 
-      mockAuthService.register.mockResolvedValue(mockResult);
+      mockRegisterUseCase.execute.mockResolvedValue(mockResult);
 
       const result = await controller.register(registerDto, mockResponse);
 
@@ -93,8 +117,8 @@ describe('AuthController', () => {
         user: mockUser,
       };
 
-      mockAuthService.getUserById.mockResolvedValue(mockUser);
-      mockAuthService.loginWithValidatedUser.mockResolvedValue(mockLoginResult);
+      mockLoginUseCase.getUserById.mockResolvedValue(mockUser);
+      mockLoginUseCase.loginWithValidatedUser.mockResolvedValue(mockLoginResult);
 
       const req = { user: mockUser };
 
@@ -114,7 +138,7 @@ describe('AuthController', () => {
     });
 
     it('should throw UnauthorizedException if user not found', async () => {
-      mockAuthService.getUserById.mockResolvedValue(null);
+      mockLoginUseCase.getUserById.mockResolvedValue(null);
 
       const req = { user: { id: 'invalid-id' } };
 
@@ -134,7 +158,7 @@ describe('AuthController', () => {
         },
       };
 
-      mockAuthService.refreshTokens.mockResolvedValue(mockResult);
+      mockRefreshTokenUseCase.execute.mockResolvedValue(mockResult);
 
       const req = {
         user: {
@@ -150,7 +174,7 @@ describe('AuthController', () => {
         user: mockResult.user,
       });
 
-      expect(mockAuthService.refreshTokens).toHaveBeenCalledWith('uuid-123', 'old-refresh-token');
+      expect(mockRefreshTokenUseCase.execute).toHaveBeenCalledWith('uuid-123', 'old-refresh-token');
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockResponse.cookie).toHaveBeenCalledWith(
@@ -167,7 +191,7 @@ describe('AuthController', () => {
 
       const result = await controller.logout(req, mockResponse);
 
-      expect(mockAuthService.logout).toHaveBeenCalledWith('uuid-123');
+      expect(mockLogoutUseCase.execute).toHaveBeenCalledWith('uuid-123');
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('refreshToken');
       expect(result).toEqual({ message: 'Logout exitoso' });

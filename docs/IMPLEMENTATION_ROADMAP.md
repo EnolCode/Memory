@@ -13,12 +13,13 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
 - **Documentación**: Database design y roadmap creados
 
 ### 🚧 En Progreso
-- **Fase 0**: Configuración base (80% completado)
+- **Fase 2**: Módulo de Libros - CRUD Básico (0% completado)
 
-### 📝 Próximos Pasos
-1. Configurar TypeORM con PostgreSQL
-2. Crear estructura de carpetas
-3. Comenzar con módulo de autenticación (Fase 1)
+### 📝 Próximos Pasos Inmediatos
+1. Generar módulo Books con NestJS CLI
+2. Crear entidades BookCatalog y UserBook
+3. Implementar DTOs y servicio de libros
+4. Crear endpoints CRUD para gestión de libros
 
 ### 🔧 Stack Tecnológico Decidido
 - **ORM**: TypeORM
@@ -37,11 +38,11 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
 - [x] ~~Instalar dependencias base de NestJS~~ **COMPLETADO - Todas las dependencias ya están en package.json**
   - TypeORM, JWT, Passport, Bcrypt, Swagger, etc. ya instaladas
   - `passport-local` agregado para autenticación local
-- [ ] Configurar TypeORM en `app.module.ts`
-- [ ] Crear archivo de configuración de base de datos
-- [ ] Configurar variables de entorno (.env)
-- [ ] Configurar Swagger para documentación de API
-- [ ] Crear estructura de carpetas (common, config, database)
+- [x] ~~Configurar TypeORM en `app.module.ts`~~ **COMPLETADO**
+- [x] ~~Crear archivo de configuración de base de datos~~ **COMPLETADO - database.config.ts**
+- [x] ~~Configurar variables de entorno (.env)~~ **COMPLETADO**
+- [x] ~~Configurar Swagger para documentación de API~~ **COMPLETADO - /api/docs**
+- [x] ~~Crear estructura de carpetas (common, config, database)~~ **COMPLETADO**
 
 ### Frontend Setup ✅
 - [ ] Limpiar proyecto Vue inicial
@@ -62,41 +63,34 @@ Desarrollar una aplicación completa de gestión de lecturas con notas y aprendi
 
 ---
 
-## 🎯 FASE 1: Sistema de Autenticación (3-4 días)
+## 🎯 FASE 1: Sistema de Autenticación (3-4 días) ✅ BACKEND COMPLETADO
 *Objetivo: Sistema completo de auth funcionando con JWT*
 
-### Backend - Auth Module
-- [ ] Generar módulo de autenticación
-  ```bash
-  # Desde tu terminal de Windows:
-  docker exec -it memory_backend bash
-  
-  # Dentro del contenedor:
-  nest g module auth
-  nest g controller auth
-  nest g service auth
-  nest g module users
-  nest g service users
-  
-  exit
-  ```
-- [ ] Crear entidad User con TypeORM
-- [ ] Crear DTOs (RegisterDto, LoginDto, UpdateUserDto)
-- [ ] Implementar servicio de usuarios
-  - [ ] Crear usuario con hash de password
-  - [ ] Buscar usuario por email/username
-  - [ ] Validar credenciales
-- [ ] Implementar JWT Strategy
-- [ ] Implementar Local Strategy
-- [ ] Crear Auth Guards (JWT, Local)
-- [ ] Endpoints de autenticación:
-  - [ ] POST /auth/register
-  - [ ] POST /auth/login
-  - [ ] POST /auth/refresh
-  - [ ] POST /auth/logout
-  - [ ] GET /auth/profile
-- [ ] Implementar refresh tokens
-- [ ] Tests unitarios del servicio auth
+### Backend - Auth Module ✅
+- [x] ~~Generar módulo de autenticación~~ **COMPLETADO**
+- [x] ~~Crear entidad User con TypeORM~~ **COMPLETADO - user.entity.ts**
+- [x] ~~Crear DTOs~~ **COMPLETADO**
+  - [x] RegisterDto
+  - [x] LoginDto
+  - [x] AuthResponseDto
+  - [x] RefreshTokenDto
+  - [ ] UpdateUserDto (mover a módulo Users futuro)
+- [x] ~~Implementar servicio de usuarios~~ **COMPLETADO**
+  - [x] Crear usuario con hash de password (bcrypt)
+  - [x] Buscar usuario por email/username
+  - [x] Validar credenciales
+- [x] ~~Implementar JWT Strategy~~ **COMPLETADO - jwt.strategy.ts**
+- [x] ~~Implementar Local Strategy~~ **COMPLETADO - local.strategy.ts**
+- [x] ~~Implementar JWT Refresh Strategy~~ **COMPLETADO - jwt-refresh.strategy.ts**
+- [x] ~~Crear Auth Guards (JWT, Local)~~ **COMPLETADO**
+- [x] ~~Endpoints de autenticación:~~ **COMPLETADO Y PROBADOS**
+  - [x] POST /auth/register
+  - [x] POST /auth/login
+  - [x] POST /auth/refresh
+  - [x] POST /auth/logout
+  - [x] GET /auth/me (perfil actual)
+- [x] ~~Implementar refresh tokens~~ **COMPLETADO**
+- [x] ~~Tests unitarios del servicio auth~~ **COMPLETADO**
 
 ### Frontend - Auth System
 - [ ] Crear vistas de autenticación

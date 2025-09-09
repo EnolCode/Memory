@@ -8,7 +8,7 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
   username: configService.get<string>('DB_USERNAME', 'memory_user'),
   password: configService.get<string>('DB_PASSWORD', 'memory_password'),
   database: configService.get<string>('DB_DATABASE', 'memory_db'),
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  entities: [__dirname + '/../**/*.schema{.ts,.js}'],
   synchronize: configService.get<string>('NODE_ENV') === 'development',
   logging: configService.get<string>('NODE_ENV') === 'development',
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],

@@ -30,6 +30,7 @@ lerna-debug.log*
 # OS files
 .DS_Store
 Thumbs.db
+nul
 
 # IDE
 .vscode/*
@@ -48,3 +49,4 @@ redis_data/
 .eslintcache
 backend/.eslintcache
 frontend/.eslintcache.sonarlint/
+.claude

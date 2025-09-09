@@ -12,8 +12,11 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Response } from 'express';
-import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterUseCase } from '../../application/use-cases/register/register.use-case';
+import { LoginUseCase } from '../../application/use-cases/login/login.use-case';
+import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token/refresh-token.use-case';
+import { LogoutUseCase } from '../../application/use-cases/logout/logout.use-case';
+import { RegisterDto } from '../../application/dto/register.dto';
 
 interface LoginRequest {
   user: {
@@ -40,94 +43,81 @@ interface ProfileRequest {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly registerUseCase: RegisterUseCase,
+    private readonly loginUseCase: LoginUseCase,
+    private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly logoutUseCase: LogoutUseCase,
+  ) {}
 
-  // ========== REGISTRO ==========
   @Post('register')
   async register(@Body() registerDto: RegisterDto, @Res({ passthrough: true }) response: Response) {
-    const result = await this.authService.register(registerDto);
+    const result = await this.registerUseCase.execute(registerDto);
 
-    // El refresh token va en cookie HTTPOnly
     this.setRefreshTokenCookie(response, result.refreshToken);
 
-    // Retornamos solo el access token y usuario
     return {
       accessToken: result.accessToken,
       user: result.user,
     };
   }
 
-  // ========== LOGIN ==========
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('local'))
   async login(@Req() req: LoginRequest, @Res({ passthrough: true }) response: Response) {
-    // req.user viene de LocalStrategy.validate()
-    // Creamos un método específico para login con usuario ya validado
-    const user = await this.authService.getUserById(req.user.id);
+    const user = await this.loginUseCase.getUserById(req.user.id);
     if (!user) {
       throw new UnauthorizedException('Usuario no encontrado');
     }
-    const result = await this.authService.loginWithValidatedUser(user);
+    const result = await this.loginUseCase.loginWithValidatedUser(user);
 
-    // Configurar cookie con refresh token
     this.setRefreshTokenCookie(response, result.refreshToken);
 
-    // Retornar access token y usuario
     return {
       accessToken: result.accessToken,
       user: result.user,
     };
   }
 
-  // ========== REFRESH TOKEN ==========
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt-refresh')) // Usa JwtRefreshStrategy
+  @UseGuards(AuthGuard('jwt-refresh'))
   async refresh(@Req() req: RefreshRequest, @Res({ passthrough: true }) response: Response) {
-    // req.user viene de JwtRefreshStrategy.validate()
-    const result = await this.authService.refreshTokens(req.user.sub, req.user.refreshToken);
+    const result = await this.refreshTokenUseCase.execute(req.user.sub, req.user.refreshToken);
 
-    // Actualizar cookie con nuevo refresh token
     this.setRefreshTokenCookie(response, result.refreshToken);
 
-    // Retornar nuevo access token
     return {
       accessToken: result.accessToken,
       user: result.user,
     };
   }
 
-  // ========== LOGOUT ==========
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt')) // Requiere estar autenticado
+  @UseGuards(AuthGuard('jwt'))
   async logout(@Req() req: AuthenticatedRequest, @Res({ passthrough: true }) response: Response) {
-    // req.user viene de JwtStrategy.validate()
-    await this.authService.logout(req.user.id);
+    await this.logoutUseCase.execute(req.user.id);
 
-    // Limpiar cookie
     response.clearCookie('refreshToken');
 
     return { message: 'Logout exitoso' };
   }
 
-  // ========== PERFIL (ejemplo de ruta protegida) ==========
   @Get('me')
-  @UseGuards(AuthGuard('jwt')) // Protegido con JWT
+  @UseGuards(AuthGuard('jwt'))
   getProfile(@Req() req: ProfileRequest) {
-    // req.user contiene el usuario del token
     return req.user;
   }
 
-  // ========== MÉTODO AUXILIAR PARA COOKIES ==========
   private setRefreshTokenCookie(response: Response, refreshToken: string) {
     response.cookie('refreshToken', refreshToken, {
-      httpOnly: true, // No accesible desde JavaScript
-      secure: process.env.NODE_ENV === 'production', // HTTPS en producción
-      sameSite: 'strict', // Protección CSRF
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días en milisegundos
-      path: '/', // Disponible en toda la app
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
     });
   }
 }

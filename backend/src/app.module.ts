@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { getDatabaseConfig } from './config/database.config';
-import { AuthModule } from './auth/auth.module';
+import { IdentityModule } from './modules/identity/identity.module';
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { AuthModule } from './auth/auth.module';
       useFactory: getDatabaseConfig,
       inject: [ConfigService],
     }),
-    AuthModule,
+    IdentityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
